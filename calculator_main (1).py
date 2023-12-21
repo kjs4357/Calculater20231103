@@ -1,5 +1,6 @@
 import sys
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QApplication, QDialog, QVBoxLayout, QHBoxLayout, QGridLayout, QFormLayout, QPushButton, QLabel, QLineEdit
+
 
 class Main(QDialog):
     def __init__(self):
@@ -57,6 +58,30 @@ class Main(QDialog):
         layout_clear_equal.addWidget(button_clear)
         layout_clear_equal.addWidget(button_backspace)
         layout_clear_equal.addWidget(button_equal)
+        # 특수 기능 버튼 생성 및 레이아웃에 추가
+        layout_special_functions = QHBoxLayout()
+        button_percent = QPushButton("%")
+        button_clear_entry = QPushButton("CE")
+        button_clear = QPushButton("C")
+        button_reciprocal = QPushButton("1/x")
+        button_square = QPushButton("x^2")
+        button_square_root = QPushButton("√x")
+        layout_special_functions.addWidget(button_percent)
+        layout_special_functions.addWidget(button_clear_entry)
+        layout_special_functions.addWidget(button_clear)
+        layout_special_functions.addWidget(button_reciprocal)
+        layout_special_functions.addWidget(button_square)
+        layout_special_functions.addWidget(button_square_root)
+        main_layout.addLayout(layout_special_functions)
+
+
+        # 특수 기능 버튼 이벤트 연결
+        button_percent.clicked.connect(self.button_percent_clicked)
+        button_clear_entry.clicked.connect(self.button_clear_entry_clicked)
+        button_clear.clicked.connect(self.button_clear_clicked)
+        button_reciprocal.clicked.connect(self.button_reciprocal_clicked)
+        button_square.clicked.connect(self.button_square_clicked)
+        button_square_root.clicked.connect(self.button_square_root_clicked)
 
         ### 숫자 버튼 생성하고, layout_number 레이아웃에 추가
         ### 각 숫자 버튼을 클릭했을 때, 숫자가 수식창에 입력 될 수 있도록 시그널 설정
@@ -87,6 +112,7 @@ class Main(QDialog):
         main_layout.addLayout(layout_number)
 
         self.setLayout(main_layout)
+        self.setWindowTitle("Calculator")
         self.show()
 
     #################
@@ -115,6 +141,49 @@ class Main(QDialog):
         equation = self.equation.text()
         equation = equation[:-1]
         self.equation.setText(equation)
+
+    def button_percent_clicked(self):
+        try:
+            current_value = eval(self.equation.text())
+            self.solution.setText(str(current_value / 100))
+        except Exception as e:
+            self.solution.setText("Error")
+
+    def button_clear_entry_clicked(self):
+        self.equation.setText("")
+
+    def button_clear_clicked(self):
+        self.equation.setText("")
+        self.solution.setText("")
+
+    def button_reciprocal_clicked(self):
+        try:
+            current_value = eval(self.equation.text())
+            if current_value == 0:
+                raise ZeroDivisionError
+            self.solution.setText(str(1 / current_value))
+        except ZeroDivisionError:
+            self.solution.setText("Cannot divide by zero")
+        except Exception as e:
+            self.solution.setText("Error")
+
+    def button_square_clicked(self):
+        try:
+            current_value = eval(self.equation.text())
+            self.solution.setText(str(current_value ** 2))
+        except Exception as e:
+            self.solution.setText("Error")
+
+    def button_square_root_clicked(self):
+        try:
+            current_value = eval(self.equation.text())
+            if current_value < 0:
+                raise ValueError("Cannot take the square root of a negative number")
+            self.solution.setText(str(current_value ** 0.5))
+        except ValueError as e:
+            self.solution.setText(str(e))
+        except Exception as e:
+            self.solution.setText("Error")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
